@@ -162,9 +162,8 @@
     </div>
 
     <div class="registro">
-      <h3> ¡Tenemos un regalo para vos!
-        <br>  +1000 Puntos Extra</h3>
-        <p><b>¡Registrate AHORA!</b> y recibí tus puntos <b>#CyberFarma</b></p>
+      <h3>¡Tenemos un regalo para vos!<br>+1000 Puntos Extra</h3>
+      <p><b>¡Registrate AHORA!</b> y recibí tus puntos <b>#CyberFarma</b></p>
       <form id="cyberForm">
         <input type="email" id="email" placeholder="Ingresá tu correo electrónico" required />
         <br />
@@ -213,32 +212,33 @@
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
 
-    // ✉️ Envío del mail → Apps Script
+    // ✉️ Envío del mail → Google Apps Script (funciona dentro de iframe)
     document.getElementById('cyberForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const url = 'https://script.google.com/macros/s/AKfycbyz4JR63_aLkPoyPYC0kV2CZXgD3ioReW2sJL3wOZCVrFuXrSCs4fFbCS7Gk0_7BUw56Q/exec';
 
-      if (!email) return alert("Por favor, ingresá un correo válido.");
+      if (!email) {
+        alert("Por favor, ingresá un correo válido.");
+        return;
+      }
 
       try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors", // 👈 necesario para funcionar dentro del iframe
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
         });
 
-        const text = await res.text();
-        if (text.includes("OK")) {
-          document.getElementById('cyberForm').reset();
-          document.getElementById('status').style.display = 'block';
-        } else {
-          alert("Hubo un problema: " + text);
-        }
+        document.getElementById('cyberForm').reset();
+        document.getElementById('status').style.display = 'block';
       } catch (err) {
         alert("Error de conexión. Intentalo nuevamente.");
+        console.error(err);
       }
     });
   </script>
 </body>
 </html>
+
