@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CYBERFARMA - Cuenta regresiva</title>
+<style>
+  :root {
+    --azul: #3333ff;
+    --verde: #c9f500;
+    --blanco: #ffffff;
+    --texto: #0b2a33;
+    --radius: 10px;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+    background: var(--blanco);
+    color: var(--texto);
+  }
+
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .logo {
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 20px;
+  }
+
+  .logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius);
+  }
+
+  .title {
+    font-weight: 800;
+    color: var(--azul);
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .timer {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .time-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--azul);
+    color: var(--blanco);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    min-width: 70px;
+  }
+
+  .time-val {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .time-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .registro {
+    background: var(--azul);
+    color: var(--blanco);
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+  }
+
+  .registro h3 {
+    color: var(--verde);
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+  }
+
+  .registro p {
+    margin: 0 0 12px;
+    font-size: 0.85rem;
+  }
+
+  .registro input {
+    width: 80%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .registro button {
+    background: var(--verde);
+    color: var(--azul);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .registro button:hover {
+    filter: brightness(1.1);
+    transform: scale(1.03);
+  }
+
+  .finished {
+    color: var(--azul);
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 520px) {
+    .logo { max-width: 100%; }
+    .time-block { min-width: 60px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <img src="https://cdn.batitienda.com/baticloud/images/section_picture_f6d95d0544784b0c8d81d36dfcb2f90a_638972624577013631_0_k.webp" alt="CyberFarma" />
+    </div>
+    <div class="title">El CyberFarma llega en...</div>
+
+    <div id="timer" class="timer">
+      <div class="time-block"><div id="days" class="time-val">--</div><div class="time-label">días</div></div>
+      <div class="time-block"><div id="hours" class="time-val">--</div><div class="time-label">hs</div></div>
+      <div class="time-block"><div id="minutes" class="time-val">--</div><div class="time-label">min</div></div>
+      <div class="time-block"><div id="seconds" class="time-val">--</div><div class="time-label">seg</div></div>
+    </div>
+
+    <div class="registro">
+      <h3> ¡Tenemos un regalo para vos!
+        <br>  +1000 Puntos Extra</h3>
+        <p><b>¡Registrate AHORA!</b> y recibí tus puntos <b>#CyberFarma</b></p>
+      <form id="cyberForm">
+        <input type="email" id="email" placeholder="Ingresá tu correo electrónico" required />
+        <br />
+        <button type="submit" id="cyberButton">Recibir mis puntos extra 💙</button>
+      </form>
+      <p id="status" style="display:none;color:var(--verde);margin-top:10px;">
+        ¡Listo! Tus puntos ya fueron registrados 🎉
+      </p>
+    </div>
+
+    <div id="finished" class="finished" style="display:none;">¡El CyberFarma ya comenzó! 🚀</div>
+  </div>
+
+  <script>
+    // 📅 Fecha objetivo
+    const TARGET_ISO = '2025-11-03T00:01:00-03:00';
+    const timerEl = document.getElementById("timer");
+    const finishEl = document.getElementById("finished");
+
+    function pad(n) { return n.toString().padStart(2, '0'); }
+
+    function updateCountdown() {
+      const now = new Date();
+      const target = new Date(TARGET_ISO);
+      const diff = target - now;
+
+      if (diff <= 0) {
+        timerEl.style.display = "none";
+        finishEl.style.display = "block";
+        clearInterval(interval);
+        return;
+      }
+
+      const sec = Math.floor(diff / 1000);
+      const days = Math.floor(sec / (3600 * 24));
+      const hours = Math.floor((sec % (3600 * 24)) / 3600);
+      const minutes = Math.floor((sec % 3600) / 60);
+      const seconds = sec % 60;
+
+      document.getElementById("days").textContent = days;
+      document.getElementById("hours").textContent = pad(hours);
+      document.getElementById("minutes").textContent = pad(minutes);
+      document.getElementById("seconds").textContent = pad(seconds);
+    }
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    // ✉️ Envío del mail → Apps Script
+    document.getElementById('cyberForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const url = 'https://script.google.com/macros/s/AKfycbyz4JR63_aLkPoyPYC0kV2CZXgD3ioReW2sJL3wOZCVrFuXrSCs4fFbCS7Gk0_7BUw56Q/exec';
+
+      if (!email) return alert("Por favor, ingresá un correo válido.");
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const text = await res.text();
+        if (text.includes("OK")) {
+          document.getElementById('cyberForm').reset();
+          document.getElementById('status').style.display = 'block';
+        } else {
+          alert("Hubo un problema: " + text);
+        }
+      } catch (err) {
+        alert("Error de conexión. Intentalo nuevamente.");
+      }
+    });
+  </script>
+</body>
+</html>
